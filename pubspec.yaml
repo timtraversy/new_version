@@ -1,0 +1,20 @@
+name: new_version
+description: A new Flutter package project.
+version: 0.0.1
+author: Tim Traversy
+homepage:
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  package_info: ^0.3.2
+  http: ^0.12.0
+  html: ^0.13.3+3
+  url_launcher: ^4.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
