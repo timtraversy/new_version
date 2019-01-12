@@ -56,7 +56,6 @@ class NewVersion {
   /// if you want to display a custom alert, or use the information in a different
   /// way.
   Future<VersionStatus> getVersionStatus() async {
-
     PackageInfo packageInfo;
     try {
       packageInfo = await PackageInfo.fromPlatform();
