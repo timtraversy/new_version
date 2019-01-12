@@ -5,7 +5,7 @@ author: Tim Traversy <timtrav@gmail.com>
 homepage: https://github.com/timtraversy/new_version
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.1.0-dev.9.4.flutter-f9ebf21297 <3.0.0"
 
 dependencies:
   flutter:
