@@ -1,3 +1,3 @@
-## [0.0.1] - TODO: Add release date.
+## 0.0.1 - 1/13/19
 
-* TODO: Describe initial release.
+* Initial release. API includes `getVersionStatus` and `showAlertIfNecessary` methods. Support for iOS and Android.
