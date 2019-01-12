@@ -1,8 +1,8 @@
 name: new_version
 description: A new Flutter package project.
 version: 0.0.1
-author: Tim Traversy
-homepage:
+author: Tim Traversy <timtrav@gmail.com>
+homepage: https://github.com/timtraversy/new_version
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

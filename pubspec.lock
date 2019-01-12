@@ -48,6 +48,11 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_analysis_options:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "1.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
