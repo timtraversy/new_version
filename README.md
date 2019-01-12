@@ -4,8 +4,7 @@ A Flutter plugin that makes it possible to:
 * Check if a user has the most recent version of your app installed.
 * Show the user an alert with a link to the appropriate app store page.
 
-<img src="screenshots/ios.jpeg" height="400" />    <img src="screenshots/android.png" height="400" />
-
+![iOS](screenshots/ios.jpeg)![Android](screenshots/android.png)
 ## Installation
 Add new_version as [a dependency in your `pubspec.yaml` file.](https://flutter.io/using-packages/)
 ```
