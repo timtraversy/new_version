@@ -9,7 +9,7 @@ A Flutter plugin that makes it possible to:
 Add new_version as [a dependency in your `pubspec.yaml` file.](https://flutter.io/using-packages/)
 ```
 dependencies:
-  new_version: ^0.0.1
+  new_version: ^0.0.3
 ```
 
 ## Usage

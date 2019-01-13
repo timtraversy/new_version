@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
+import 'dart:async';
 
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
@@ -47,7 +48,7 @@ class NewVersion {
   /// with buttons to dismiss the update alert, or go to the app store.
   showAlertIfNecessary() async {
     VersionStatus versionStatus = await getVersionStatus();
-    if (versionStatus.canUpdate) {
+    if (versionStatus != null && versionStatus.canUpdate) {
       showUpdateDialog(versionStatus);
     }
   }
@@ -63,14 +64,17 @@ class NewVersion {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
         final id = androidId ?? packageInfo.packageName;
-        versionStatus = _getAndroidStoreVersion(id, versionStatus);
+        versionStatus = await _getAndroidStoreVersion(id, versionStatus);
         break;
       case TargetPlatform.iOS:
         final id = iOSId ?? packageInfo.packageName;
-        versionStatus = _getiOSStoreVersion(id, versionStatus);
+        versionStatus = await _getiOSStoreVersion(id, versionStatus);
         break;
       default:
         print('This target platform is not yet supported by this package.');
+    }
+    if (versionStatus == null) {
+      return null;
     }
     versionStatus.canUpdate =
         versionStatus.storeVersion != versionStatus.localVersion;
