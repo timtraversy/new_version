@@ -23,6 +23,8 @@ You can use then use the plugin in two ways.
 ### Quickstart
 Calling `showAlertIfNecessary` will check if the app can be updated, and will automatically dispaly a platform-specific alert that the user can use to go to the app store.
 
+`newVersion.showAlertIfNecessary();`
+
 ### Advanced 😎
 If you want to create a custom alert or use the app version information differently, call `getVersionStatus`. This will return a `VersionStatus` future with information about the local and app store versions of the app.
 ```
