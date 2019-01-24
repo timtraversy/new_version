@@ -26,7 +26,7 @@ Calling `showAlertIfNecessary` will check if the app can be updated, and will au
 `newVersion.showAlertIfNecessary();`
 
 ### Advanced 😎
-If you want to create a custom alert or use the app version information differently, call `getVersionStatus`. This will return a `VersionStatus` future with information about the local and app store versions of the app.
+If you want to create a custom alert or use the app version information differently, call `getVersionStatus`. This will return a `VersionStatus` Future with information about the local and app store versions of the app.
 ```
 final status = await newVersion.getVersionStatus();
 status.needsUpdate // (true)
