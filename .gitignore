@@ -9,6 +9,5 @@ build/
 ios/.generated/
 packages
 pubspec.lock
-
-# Directory created by dartdoc
+*.iml
 doc/api/
