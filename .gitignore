@@ -1,10 +1,14 @@
 .DS_Store
 .dart_tool/
-
+/.idea/
+.atom/
+.idea
 .packages
 .pub/
-
 build/
 ios/.generated/
-ios/Flutter/Generated.xcconfig
-ios/Runner/GeneratedPluginRegistrant.*
+packages
+pubspec.lock
+
+# Directory created by dartdoc
+doc/api/
