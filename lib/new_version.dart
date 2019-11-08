@@ -8,6 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'package:launch_review/launch_review.dart';
 
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
@@ -61,17 +63,14 @@ class NewVersion {
     VersionStatus versionStatus = VersionStatus(
       localVersion: packageInfo.version,
     );
-    switch (Theme.of(context).platform) {
-      case TargetPlatform.android:
-        final id = androidId ?? packageInfo.packageName;
-        versionStatus = await _getAndroidStoreVersion(id, versionStatus);
-        break;
-      case TargetPlatform.iOS:
-        final id = iOSId ?? packageInfo.packageName;
-        versionStatus = await _getiOSStoreVersion(id, versionStatus);
-        break;
-      default:
-        print('This target platform is not yet supported by this package.');
+    if (Platform.isAndroid) {
+      final id = androidId ?? packageInfo.packageName;
+      versionStatus = await _getAndroidStoreVersion(id, versionStatus);
+    } else if (Platform.isIOS) {
+      final id = iOSId ?? packageInfo.packageName;
+      versionStatus = await _getiOSStoreVersion(id, versionStatus);
+    } else {
+      print('This target platform is not yet supported by this package.');
     }
     if (versionStatus == null) {
       return null;
@@ -165,11 +164,17 @@ class NewVersion {
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  void _launchAppStore(String appStoreLink) async {
-    if (await canLaunch(appStoreLink)) {
-      await launch(appStoreLink, forceWebView: true);
+   void _launchAppStore(String appStoreLink) async {
+    if (Platform.isAndroid) {
+      LaunchReview.launch();
+    } else if (Platform.isIOS) {
+      if (await canLaunch(appStoreLink)) {
+        await launch(appStoreLink);
+      } else {
+        throw 'Could not launch appStoreLink';
+      }
     } else {
-      throw 'Could not launch appStoreLink';
+      print('This target platform is not yet supported by this package.');
     }
   }
 }
