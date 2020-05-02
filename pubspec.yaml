@@ -1,6 +1,6 @@
 name: new_version
 description: Check if your user has the most recent version of your Flutter app.
-version: 0.0.3
+version: 0.0.4
 author: Tim Traversy <timtrav@gmail.com>
 homepage: https://github.com/timtraversy/new_version
 
@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   package_info: ^0.3.2
   http: ^0.12.0
-  html: ^0.13.3+3
+  html: ^0.14.0
   url_launcher: ^4.0.3
 
 dev_dependencies:

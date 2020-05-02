@@ -11,3 +11,4 @@ packages
 pubspec.lock
 *.iml
 doc/api/
+android/local.properties
