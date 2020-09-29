@@ -12,3 +12,5 @@ pubspec.lock
 *.iml
 doc/api/
 android/local.properties
+.flutter-plugins
+.flutter-plugins-dependencies
