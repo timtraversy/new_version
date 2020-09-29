@@ -6,7 +6,7 @@ A Flutter plugin that makes it possible to:
 
 See more at the [Dart Packages page.](https://pub.dartlang.org/packages/new_version)
 
-![Screenshots](screenshots/both.jpg)
+![Screenshots](screenshots/both.png)
 
 ## Installation
 Add new_version as [a dependency in your `pubspec.yaml` file.](https://flutter.io/using-packages/)
