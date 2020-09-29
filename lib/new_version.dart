@@ -84,7 +84,7 @@ class NewVersion {
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
   _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
-    final url = 'http://itunes.apple.com/lookup?bundleId=$id';
+    final url = 'https://itunes.apple.com/lookup?bundleId=$id';
     final response = await http.get(url);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the App Store with the id: $id');
