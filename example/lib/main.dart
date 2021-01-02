@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_version/new_version.dart';
 
-import '../../../lib/new_version.dart';
-
 void main() {
   runApp(MyApp());
 }
@@ -57,9 +55,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    NewVersion(context: context).showAlertIfNecessary();
+    NewVersion(
+      context: context,
+      iOSId: 'com.google.maps',
+      androidId: 'com.google.android.apps.maps',
+    ).showAlertIfNecessary();
   }
 
   void _incrementCounter() {
