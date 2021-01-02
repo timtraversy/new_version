@@ -41,8 +41,33 @@ class NewVersion {
   /// a different package name in the App Store for some reason.
   String iOSId;
 
-  NewVersion({this.androidId, this.iOSId, @required this.context})
-      : assert(context != null);
+  /// An optional value that can override the default callback to dismiss button
+  VoidCallback dismissAction;
+
+  /// An optional value that can override the default text to alert,
+  /// you can ${versionStatus.localVersion} to ${versionStatus.storeVersion}
+  /// to determinate in the text a versions.
+  String dialogText;
+
+  /// An optional value that can override the default title of alert dialog
+  String dialogTitle;
+
+  /// An optional value that can override the default text of dismiss button
+  String dismissText;
+
+  /// An optional value that can override the default text of update button
+  String updateText;
+
+  NewVersion({
+    this.androidId,
+    this.iOSId,
+    @required this.context,
+    this.dismissAction,
+    this.dismissText: 'Maybe Later',
+    this.updateText: 'Update',
+    this.dialogText,
+    this.dialogTitle: 'Update Available',
+  }) : assert(context != null);
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
@@ -76,8 +101,7 @@ class NewVersion {
     if (versionStatus == null) {
       return null;
     }
-    versionStatus.canUpdate =
-        versionStatus.storeVersion != versionStatus.localVersion;
+    versionStatus.canUpdate = versionStatus.storeVersion != versionStatus.localVersion;
     return versionStatus;
   }
 
@@ -117,15 +141,17 @@ class NewVersion {
   /// Shows the user a platform-specific alert about the app update. The user
   /// can dismiss the alert or proceed to the app store.
   void showUpdateDialog(VersionStatus versionStatus) async {
-    const title = Text('Update Available');
+    final title = Text(dialogTitle);
     final content = Text(
-        'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}');
-    const dismissText = Text('Maybe Later');
-    final dismissAction = () => Navigator.pop(context);
-    const updateText = Text('Update');
+      this.dialogText ??
+          'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
+    );
+    final dismissText = Text(this.dismissText);
+    final dismissAction = this.dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
+    final updateText = Text(this.updateText);
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
-      Navigator.pop(context);
+      Navigator.of(context, rootNavigator: true).pop();
     };
     final platform = Theme.of(context).platform;
     showDialog(
