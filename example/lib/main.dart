@@ -58,8 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     NewVersion(
       context: context,
-      iOSId: 'com.google.maps',
-      androidId: 'com.google.android.apps.maps',
+      iOSId: 'com.google.Vespa',
+      androidId: 'com.google.android.apps.cloudconsole',
     ).showAlertIfNecessary();
   }
 
