@@ -37,3 +37,7 @@ status.localVersion // (1.2.1)
 status.storeVersion // (1.2.3)
 status.appStoreLink // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
 ```
+
+If you want to get an specific country version of your app, just add the `storeLanguage` when you create an instance of `NewVersion`.
+
+`final new Version = NewVersion(context, country='CL')`
