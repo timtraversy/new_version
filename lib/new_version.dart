@@ -58,6 +58,9 @@ class NewVersion {
   /// An optional value that can override the default text of update button
   String updateText;
 
+  /// An optional value that can override the default store language
+  String storeLanguage;
+
   NewVersion({
     this.androidId,
     this.iOSId,
@@ -67,6 +70,7 @@ class NewVersion {
     this.updateText: 'Update',
     this.dialogText,
     this.dialogTitle: 'Update Available',
+    this.storeLanguage,
   }) : assert(context != null);
 
   /// This checks the version status, then displays a platform-specific alert
@@ -93,7 +97,8 @@ class NewVersion {
         break;
       case TargetPlatform.iOS:
         final id = iOSId ?? packageInfo.packageName;
-        versionStatus = await _getiOSStoreVersion(id, versionStatus);
+        final language = storeLanguage == null ? '' : '&country=$storeLanguage';
+        versionStatus = await _getiOSStoreVersion(id, language, versionStatus);
         break;
       default:
         print('This target platform is not yet supported by this package.');
@@ -109,7 +114,8 @@ class NewVersion {
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
   _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
-    final uri = Uri.https("itunes.apple.com", "/lookup", {"bundleId": "$id"});
+    final uri = Uri.https("itunes.apple.com", "/lookup",
+        {"bundleId": "$id", "country": storeLanguage});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the App Store with the id: $id');
