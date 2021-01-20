@@ -93,7 +93,9 @@ class NewVersion {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
         final id = androidId ?? packageInfo.packageName;
-        versionStatus = await _getAndroidStoreVersion(id, versionStatus);
+        final countrycode = storeCountry == null ? '' : '&gl=$storeCountry';
+        versionStatus =
+            await _getAndroidStoreVersion(id, countrycode, versionStatus);
         break;
       case TargetPlatform.iOS:
         final id = iOSId ?? packageInfo.packageName;
@@ -131,9 +133,10 @@ class NewVersion {
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  _getAndroidStoreVersion(String id, VersionStatus versionStatus) async {
-    final uri =
-        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
+  _getAndroidStoreVersion(
+      String id, String countrycode, VersionStatus versionStatus) async {
+    final uri = Uri.https("play.google.com", "/store/apps/details",
+        {"id": "$id", "gl": countrycode});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the Play Store with the id: $id');
