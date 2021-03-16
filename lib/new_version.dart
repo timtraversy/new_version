@@ -127,7 +127,6 @@ class NewVersion {
       return null;
     }
     final jsonObj = json.decode(response.body);
-    print(uri.toString());
     versionStatus.storeVersion = jsonObj['results'][0]['version'];
     versionStatus.appStoreLink = jsonObj['results'][0]['trackViewUrl'];
     return versionStatus;
