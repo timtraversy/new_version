@@ -33,15 +33,15 @@ class NewVersion {
 
   /// An optional value that can override the default packageName when
   /// attempting to reach the Google Play Store. This is useful if your app has
-  /// a different package name in the Play Store for some reason.
+  /// a different package name in the Play Store.
   String androidId;
 
   /// An optional value that can override the default packageName when
   /// attempting to reach the Apple App Store. This is useful if your app has
-  /// a different package name in the App Store for some reason.
+  /// a different package name in the App Store.
   String iOSId;
 
-  /// An optional value that can override the default callback to dismiss button
+  /// An optional value that can override the default callback to dismiss button.
   VoidCallback dismissAction;
 
   /// An optional value that can override the default text to alert,
@@ -49,14 +49,20 @@ class NewVersion {
   /// to determinate in the text a versions.
   String dialogText;
 
-  /// An optional value that can override the default title of alert dialog
+  /// An optional value that can override the default title of alert dialog.
   String dialogTitle;
 
-  /// An optional value that can override the default text of dismiss button
+  /// An optional value that can override the default text of dismiss button.
   String dismissText;
 
-  /// An optional value that can override the default text of update button
+  /// An optional value that can override the default text of update button.
   String updateText;
+
+  /// Only affects iOS App Store lookup: The two-letter country code for the store you want to search.
+  /// Provide a value here if your app is only available outside the US.
+  /// For example: US. The default is US.
+  /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
+  String iOSAppStoreCountry;
 
   NewVersion({
     this.androidId,
@@ -67,6 +73,7 @@ class NewVersion {
     this.updateText: 'Update',
     this.dialogText,
     this.dialogTitle: 'Update Available',
+    this.iOSAppStoreCountry,
   }) : assert(context != null);
 
   /// This checks the version status, then displays a platform-specific alert
@@ -109,7 +116,11 @@ class NewVersion {
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
   _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
-    final uri = Uri.https("itunes.apple.com", "/lookup", {"bundleId": "$id"});
+    final parameters = {"bundleId": "$id"};
+    if (iOSAppStoreCountry != null) {
+      parameters.addAll({"country": iOSAppStoreCountry});
+    }
+    var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the App Store with the id: $id');
