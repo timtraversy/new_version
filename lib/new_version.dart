@@ -33,15 +33,15 @@ class NewVersion {
 
   /// An optional value that can override the default packageName when
   /// attempting to reach the Google Play Store. This is useful if your app has
-  /// a different package name in the Play Store for some reason.
+  /// a different package name in the Play Store.
   String androidId;
 
   /// An optional value that can override the default packageName when
   /// attempting to reach the Apple App Store. This is useful if your app has
-  /// a different package name in the App Store for some reason.
+  /// a different package name in the App Store.
   String iOSId;
 
-  /// An optional value that can override the default callback to dismiss button
+  /// An optional value that can override the default callback to dismiss button.
   VoidCallback dismissAction;
 
   /// An optional value that can override the default text to alert,
@@ -49,13 +49,13 @@ class NewVersion {
   /// to determinate in the text a versions.
   String dialogText;
 
-  /// An optional value that can override the default title of alert dialog
+  /// An optional value that can override the default title of alert dialog.
   String dialogTitle;
 
-  /// An optional value that can override the default text of dismiss button
+  /// An optional value that can override the default text of dismiss button.
   String dismissText;
 
-  /// An optional value that can override the default text of update button
+  /// An optional value that can override the default text of update button.
   String updateText;
 
   /// Only affects iOS App Store lookup: The two-letter country code for the store you want to search.

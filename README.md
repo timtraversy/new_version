@@ -38,6 +38,30 @@ status.storeVersion // (1.2.3)
 status.appStoreLink // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
 ```
 
-If you want to get an specific country version of your app, just add the `storeLanguage` when you create an instance of `NewVersion`.
+### Options
+`BuildContext context`
+This is required to check the user's platform and display alert dialogs.
 
-`final new Version = NewVersion(context, country='CL')`
+`String androidId`
+An optional value that can override the default packageName when attempting to reach the Google Play Store. This is useful if your app has a different package name in the Play Store.
+
+`String iOSId`
+An optional value that can override the default packageName when attempting to reach the Apple App Store. This is useful if your app has a different package name in the App Store.
+
+`VoidCallback dismissAction`
+An optional value that can override the default callback to dismiss button.
+
+`String dialogText`
+An optional value that can override the default text to alert, you can ${versionStatus.localVersion} to ${versionStatus.storeVersion} to determinate in the text a versions.
+
+`String dialogTitle`
+An optional value that can override the default title of alert dialog.
+
+`String dismissText`
+An optional value that can override the default text of dismiss button.
+
+`String updateText`
+An optional value that can override the default text of update button.
+
+`String iOSAppStoreCountry`
+Only affects iOS App Store lookup: The two-letter country code for the store you want to search. Provide a value here if your app is only available outside the US. For example: US. The default is US. See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
