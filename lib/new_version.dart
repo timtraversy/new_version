@@ -1,7 +1,7 @@
 library new_version;
 
 import 'package:http/http.dart' as http;
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -101,15 +101,16 @@ class NewVersion {
     if (versionStatus == null) {
       return null;
     }
-    versionStatus.canUpdate = versionStatus.storeVersion != versionStatus.localVersion;
+    versionStatus.canUpdate =
+        versionStatus.storeVersion != versionStatus.localVersion;
     return versionStatus;
   }
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
   _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
-    final url = 'https://itunes.apple.com/lookup?bundleId=$id';
-    final response = await http.get(url);
+    final uri = Uri.https("itunes.apple.com", "/lookup", {"bundleId": "$id"});
+    final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the App Store with the id: $id');
       return null;
@@ -122,8 +123,9 @@ class NewVersion {
 
   /// Android info is fetched by parsing the html of the app store page.
   _getAndroidStoreVersion(String id, VersionStatus versionStatus) async {
-    final url = 'https://play.google.com/store/apps/details?id=$id';
-    final response = await http.get(url);
+    final uri =
+        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
+    final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the Play Store with the id: $id');
       return null;
@@ -134,7 +136,7 @@ class NewVersion {
       (elm) => elm.querySelector('.BgcNfc').text == 'Current Version',
     );
     versionStatus.storeVersion = versionElement.querySelector('.htlgb').text;
-    versionStatus.appStoreLink = url;
+    versionStatus.appStoreLink = uri.toString();
     return versionStatus;
   }
 
@@ -147,7 +149,8 @@ class NewVersion {
           'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
     );
     final dismissText = Text(this.dismissText);
-    final dismissAction = this.dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
+    final dismissAction = this.dismissAction ??
+        () => Navigator.of(context, rootNavigator: true).pop();
     final updateText = Text(this.updateText);
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
@@ -162,11 +165,11 @@ class NewVersion {
                 title: title,
                 content: content,
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: dismissText,
                     onPressed: dismissAction,
                   ),
-                  FlatButton(
+                  TextButton(
                     child: updateText,
                     onPressed: updateAction,
                   ),
@@ -192,6 +195,7 @@ class NewVersion {
 
   /// Launches the Apple App Store or Google Play Store page for the app.
   void _launchAppStore(String appStoreLink) async {
+    print(appStoreLink);
     if (await canLaunch(appStoreLink)) {
       await launch(appStoreLink);
     } else {
