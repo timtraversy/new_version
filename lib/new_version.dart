@@ -58,8 +58,11 @@ class NewVersion {
   /// An optional value that can override the default text of update button
   String updateText;
 
-  /// An optional value that can override the default store country
-  String storeCountry;
+  /// Only affects iOS App Store lookup: The two-letter country code for the store you want to search.
+  /// Provide a value here if your app is only available outside the US.
+  /// For example: US. The default is US.
+  /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
+  String iOSAppStoreCountry;
 
   NewVersion({
     this.androidId,
@@ -70,7 +73,7 @@ class NewVersion {
     this.updateText: 'Update',
     this.dialogText,
     this.dialogTitle: 'Update Available',
-    this.storeCountry,
+    this.iOSAppStoreCountry,
   }) : assert(context != null);
 
   /// This checks the version status, then displays a platform-specific alert
@@ -93,16 +96,11 @@ class NewVersion {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
         final id = androidId ?? packageInfo.packageName;
-        final countrycode = storeCountry == null ? '' : '&gl=$storeCountry';
-        versionStatus =
-            await _getAndroidStoreVersion(id, countrycode, versionStatus);
+        versionStatus = await _getAndroidStoreVersion(id, versionStatus);
         break;
       case TargetPlatform.iOS:
         final id = iOSId ?? packageInfo.packageName;
-        final countrycode =
-            storeCountry == null ? '' : '&country=$storeCountry';
-        versionStatus =
-            await _getiOSStoreVersion(id, countrycode, versionStatus);
+        versionStatus = await _getiOSStoreVersion(id, versionStatus);
         break;
       default:
         print('This target platform is not yet supported by this package.');
@@ -117,26 +115,28 @@ class NewVersion {
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
-  _getiOSStoreVersion(
-      String id, String countryCode, VersionStatus versionStatus) async {
-    final uri = Uri.https("itunes.apple.com", "/lookup",
-        {"bundleId": "$id", "country": countryCode});
+  _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
+    final parameters = {"bundleId": "$id"};
+    if (iOSAppStoreCountry != null) {
+      parameters.addAll({"country": iOSAppStoreCountry});
+    }
+    var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the App Store with the id: $id');
       return null;
     }
     final jsonObj = json.decode(response.body);
+    print(uri.toString());
     versionStatus.storeVersion = jsonObj['results'][0]['version'];
     versionStatus.appStoreLink = jsonObj['results'][0]['trackViewUrl'];
     return versionStatus;
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  _getAndroidStoreVersion(
-      String id, String countrycode, VersionStatus versionStatus) async {
-    final uri = Uri.https("play.google.com", "/store/apps/details",
-        {"id": "$id", "gl": countrycode});
+  _getAndroidStoreVersion(String id, VersionStatus versionStatus) async {
+    final uri =
+        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       print('Can\'t find an app in the Play Store with the id: $id');
