@@ -103,7 +103,8 @@ class NewVersion {
   /// way.
   Future<VersionStatus?> getVersionStatus() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    VersionStatus versionStatus = VersionStatus(localVersion: packageInfo.version);
+    VersionStatus versionStatus =
+        VersionStatus(localVersion: packageInfo.version);
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
         final id = androidId ?? packageInfo.packageName;
@@ -114,7 +115,8 @@ class NewVersion {
         versionStatus = await _getiOSStoreVersion(id, versionStatus);
         break;
       default:
-        debugPrint('This target platform is not yet supported by this package.');
+        debugPrint(
+            'This target platform is not yet supported by this package.');
     }
 
     return versionStatus;
@@ -141,7 +143,8 @@ class NewVersion {
 
   /// Android info is fetched by parsing the html of the app store page.
   _getAndroidStoreVersion(String id, VersionStatus versionStatus) async {
-    final uri = Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
+    final uri =
+        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       debugPrint('Can\'t find an app in the Play Store with the id: $id');
@@ -166,8 +169,8 @@ class NewVersion {
           'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
     );
     final dismissText = Text(this.dismissText);
-    final dismissAction =
-        this.dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
+    final dismissAction = this.dismissAction ??
+        () => Navigator.of(context, rootNavigator: true).pop();
     final updateText = Text(this.updateText);
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink!);
