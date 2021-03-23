@@ -1,85 +1,91 @@
 library new_version;
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io' show Platform;
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:html/parser.dart' show parse;
-import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:convert';
-import 'dart:async';
 
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
 class VersionStatus {
   /// True if the there is a more recent version of the app in the store.
-  bool canUpdate;
+  bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
 
   /// The current version of the app.
-  String localVersion;
+  final String localVersion;
 
   /// The most recent version of the app in the store.
-  String storeVersion;
+  final String storeVersion;
 
   /// A link to the app store page where the app can be updated.
-  String appStoreLink;
+  final String appStoreLink;
 
-  VersionStatus({this.canUpdate, this.localVersion, this.storeVersion});
+  VersionStatus._({
+    required this.localVersion,
+    required this.storeVersion,
+    required this.appStoreLink,
+  });
 }
 
 class NewVersion {
   /// This is required to check the user's platform and display alert dialogs.
-  BuildContext context;
+  final BuildContext context;
 
   /// An optional value that can override the default packageName when
   /// attempting to reach the Google Play Store. This is useful if your app has
   /// a different package name in the Play Store.
-  String androidId;
+  final String? androidId;
 
   /// An optional value that can override the default packageName when
   /// attempting to reach the Apple App Store. This is useful if your app has
   /// a different package name in the App Store.
-  String iOSId;
+  final String? iOSId;
 
   /// An optional value that can override the default callback to dismiss button.
-  VoidCallback dismissAction;
+  final VoidCallback? dismissAction;
 
   /// An optional value that can override the default text to alert,
   /// you can ${versionStatus.localVersion} to ${versionStatus.storeVersion}
   /// to determinate in the text a versions.
-  String dialogText;
+  final String? dialogText;
 
   /// An optional value that can override the default title of alert dialog.
-  String dialogTitle;
+  final String dialogTitle;
 
   /// An optional value that can override the default text of dismiss button.
-  String dismissText;
+  final String dismissText;
 
   /// An optional value that can override the default text of update button.
-  String updateText;
+  final String updateText;
 
   /// Only affects iOS App Store lookup: The two-letter country code for the store you want to search.
   /// Provide a value here if your app is only available outside the US.
   /// For example: US. The default is US.
   /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
-  String iOSAppStoreCountry;
+  final String? iOSAppStoreCountry;
 
   NewVersion({
+    required this.context,
     this.androidId,
     this.iOSId,
-    @required this.context,
     this.dismissAction,
     this.dismissText: 'Maybe Later',
     this.updateText: 'Update',
     this.dialogText,
     this.dialogTitle: 'Update Available',
     this.iOSAppStoreCountry,
-  }) : assert(context != null);
+  });
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
   showAlertIfNecessary() async {
-    VersionStatus versionStatus = await getVersionStatus();
+    final VersionStatus? versionStatus = await getVersionStatus();
     if (versionStatus != null && versionStatus.canUpdate) {
       showUpdateDialog(versionStatus);
     }
@@ -88,67 +94,61 @@ class NewVersion {
   /// This checks the version status and returns the information. This is useful
   /// if you want to display a custom alert, or use the information in a different
   /// way.
-  Future<VersionStatus> getVersionStatus() async {
+  Future<VersionStatus?> getVersionStatus() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    VersionStatus versionStatus = VersionStatus(
-      localVersion: packageInfo.version,
-    );
-    switch (Theme.of(context).platform) {
-      case TargetPlatform.android:
-        final id = androidId ?? packageInfo.packageName;
-        versionStatus = await _getAndroidStoreVersion(id, versionStatus);
-        break;
-      case TargetPlatform.iOS:
-        final id = iOSId ?? packageInfo.packageName;
-        versionStatus = await _getiOSStoreVersion(id, versionStatus);
-        break;
-      default:
-        print('This target platform is not yet supported by this package.');
+    if (Platform.isIOS) {
+      return _getiOSStoreVersion(packageInfo);
+    } else if (Platform.isAndroid) {
+      return _getAndroidStoreVersion(packageInfo);
+    } else {
+      debugPrint(
+          'The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
     }
-    if (versionStatus == null) {
-      return null;
-    }
-    versionStatus.canUpdate =
-        versionStatus.storeVersion != versionStatus.localVersion;
-    return versionStatus;
   }
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
-  _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
+  Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
+    final id = iOSId ?? packageInfo.packageName;
     final parameters = {"bundleId": "$id"};
     if (iOSAppStoreCountry != null) {
-      parameters.addAll({"country": iOSAppStoreCountry});
+      parameters.addAll({"country": iOSAppStoreCountry!});
     }
     var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
     final response = await http.get(uri);
     if (response.statusCode != 200) {
-      print('Can\'t find an app in the App Store with the id: $id');
+      debugPrint('Can\'t find an app in the App Store with the id: $id');
       return null;
     }
     final jsonObj = json.decode(response.body);
-    versionStatus.storeVersion = jsonObj['results'][0]['version'];
-    versionStatus.appStoreLink = jsonObj['results'][0]['trackViewUrl'];
-    return versionStatus;
+    return VersionStatus._(
+      localVersion: packageInfo.version,
+      storeVersion: jsonObj['results'][0]['version'],
+      appStoreLink: jsonObj['results'][0]['trackViewUrl'],
+    );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  _getAndroidStoreVersion(String id, VersionStatus versionStatus) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(
+      PackageInfo packageInfo) async {
+    final id = androidId ?? packageInfo.packageName;
     final uri =
         Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
-      print('Can\'t find an app in the Play Store with the id: $id');
+      debugPrint('Can\'t find an app in the Play Store with the id: $id');
       return null;
     }
     final document = parse(response.body);
     final elements = document.getElementsByClassName('hAyfc');
     final versionElement = elements.firstWhere(
-      (elm) => elm.querySelector('.BgcNfc').text == 'Current Version',
+      (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
     );
-    versionStatus.storeVersion = versionElement.querySelector('.htlgb').text;
-    versionStatus.appStoreLink = uri.toString();
-    return versionStatus;
+    return VersionStatus._(
+      localVersion: packageInfo.version,
+      storeVersion: versionElement.querySelector('.htlgb')!.text,
+      appStoreLink: uri.toString(),
+    );
   }
 
   /// Shows the user a platform-specific alert about the app update. The user
@@ -206,7 +206,7 @@ class NewVersion {
 
   /// Launches the Apple App Store or Google Play Store page for the app.
   void _launchAppStore(String appStoreLink) async {
-    print(appStoreLink);
+    debugPrint(appStoreLink);
     if (await canLaunch(appStoreLink)) {
       await launch(appStoreLink);
     } else {
