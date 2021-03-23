@@ -1,3 +1,9 @@
+## 0.2.0 - 3/23/21
+
+#### Breaking changes
+
+* `NewVersion` now only has three fields `iOSId`, `androidId`, and `iOSAppStoreCountry`. The other fields have been turned into parameters for the individual functions.
+
 ## 0.1.0 - 3/23/21
 
 #### Breaking changes
