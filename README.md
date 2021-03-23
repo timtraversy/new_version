@@ -17,6 +17,7 @@ dependencies:
 
 ## Usage
 In `main.dart` (or wherever your app is initialized), create an instance of `NewVersion`.
+
 `final newVersion = NewVersion()`.
 
 The plugin will automatically use your Flutter package identifier to check the app store. If your app has a differnet identifier in the Google Play Store or Apple App Store, you can overwrite this by providing values for `androidId` and/or `iOSId`.
