@@ -14,9 +14,6 @@ import 'package:url_launcher/url_launcher.dart';
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
 class VersionStatus {
-  /// True if the there is a more recent version of the app in the store.
-  bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
-
   /// The current version of the app.
   final String localVersion;
 
@@ -26,6 +23,9 @@ class VersionStatus {
   /// A link to the app store page where the app can be updated.
   final String appStoreLink;
 
+  /// True if the there is a more recent version of the app in the store.
+  bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
+
   VersionStatus._({
     required this.localVersion,
     required this.storeVersion,
@@ -34,35 +34,15 @@ class VersionStatus {
 }
 
 class NewVersion {
-  /// This is required to check the user's platform and display alert dialogs.
-  final BuildContext context;
-
-  /// An optional value that can override the default packageName when
-  /// attempting to reach the Google Play Store. This is useful if your app has
-  /// a different package name in the Play Store.
-  final String? androidId;
-
   /// An optional value that can override the default packageName when
   /// attempting to reach the Apple App Store. This is useful if your app has
   /// a different package name in the App Store.
   final String? iOSId;
 
-  /// An optional value that can override the default callback to dismiss button.
-  final VoidCallback? dismissAction;
-
-  /// An optional value that can override the default text to alert,
-  /// you can ${versionStatus.localVersion} to ${versionStatus.storeVersion}
-  /// to determinate in the text a versions.
-  final String? dialogText;
-
-  /// An optional value that can override the default title of alert dialog.
-  final String dialogTitle;
-
-  /// An optional value that can override the default text of dismiss button.
-  final String dismissText;
-
-  /// An optional value that can override the default text of update button.
-  final String updateText;
+  /// An optional value that can override the default packageName when
+  /// attempting to reach the Google Play Store. This is useful if your app has
+  /// a different package name in the Play Store.
+  final String? androidId;
 
   /// Only affects iOS App Store lookup: The two-letter country code for the store you want to search.
   /// Provide a value here if your app is only available outside the US.
@@ -71,23 +51,17 @@ class NewVersion {
   final String? iOSAppStoreCountry;
 
   NewVersion({
-    required this.context,
     this.androidId,
     this.iOSId,
-    this.dismissAction,
-    this.dismissText: 'Maybe Later',
-    this.updateText: 'Update',
-    this.dialogText,
-    this.dialogTitle: 'Update Available',
     this.iOSAppStoreCountry,
   });
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
-  showAlertIfNecessary() async {
+  showAlertIfNecessary({required BuildContext context}) async {
     final VersionStatus? versionStatus = await getVersionStatus();
     if (versionStatus != null && versionStatus.canUpdate) {
-      showUpdateDialog(versionStatus);
+      showUpdateDialog(context: context, versionStatus: versionStatus);
     }
   }
 
@@ -153,49 +127,61 @@ class NewVersion {
 
   /// Shows the user a platform-specific alert about the app update. The user
   /// can dismiss the alert or proceed to the app store.
-  void showUpdateDialog(VersionStatus versionStatus) async {
-    final title = Text(dialogTitle);
-    final content = Text(
-      this.dialogText ??
+  ///
+  /// To change the appearance and behavior of the update dialog, you can
+  /// optionally provide [dialogTitle], [dialogText], [updateButtonText],
+  /// [dismissButtonText], and [dismissAction] parameters.
+  void showUpdateDialog({
+    required BuildContext context,
+    required VersionStatus versionStatus,
+    String dialogTitle = 'Update Available',
+    String? dialogText,
+    String updateButtonText = 'Update',
+    String dismissButtonText = 'Maybe Later',
+    VoidCallback? dismissAction,
+  }) async {
+    final dialogTitleWidget = Text(dialogTitle);
+    final dialogTextWidget = Text(
+      dialogText ??
           'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
     );
-    final dismissText = Text(this.dismissText);
-    final dismissAction = this.dismissAction ??
-        () => Navigator.of(context, rootNavigator: true).pop();
-    final updateText = Text(this.updateText);
+    final updateButtonTextWidget = Text(updateButtonText);
+    final dismissButtonTextWidget = Text(dismissButtonText);
+    dismissAction =
+        dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
       Navigator.of(context, rootNavigator: true).pop();
     };
-    final platform = Theme.of(context).platform;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return platform == TargetPlatform.android
+        return Platform.isAndroid
             ? AlertDialog(
-                title: title,
-                content: content,
+                title: dialogTitleWidget,
+                content: dialogTextWidget,
                 actions: <Widget>[
                   TextButton(
-                    child: dismissText,
+                    child: dismissButtonTextWidget,
                     onPressed: dismissAction,
                   ),
                   TextButton(
-                    child: updateText,
+                    child: updateButtonTextWidget,
                     onPressed: updateAction,
                   ),
                 ],
               )
             : CupertinoAlertDialog(
-                title: title,
-                content: content,
+                title: dialogTitleWidget,
+                content: dialogTextWidget,
                 actions: <Widget>[
                   CupertinoDialogAction(
-                    child: dismissText,
+                    child: dismissButtonTextWidget,
                     onPressed: dismissAction,
                   ),
                   CupertinoDialogAction(
-                    child: updateText,
+                    child: updateButtonTextWidget,
                     onPressed: updateAction,
                   ),
                 ],
