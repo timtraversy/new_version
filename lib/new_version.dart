@@ -2,6 +2,7 @@ library new_version;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,30 +15,22 @@ import 'package:url_launcher/url_launcher.dart';
 /// available in the Apple App Store or Google Play Store.
 class VersionStatus {
   /// True if the there is a more recent version of the app in the store.
-  bool get canUpdate {
-    if (storeVersion == null) {
-      return false;
-    }
-    if (localVersion != null) {
-      final current = int.tryParse(localVersion!.replaceAll('.', ''));
-      final store = int.tryParse(storeVersion!.replaceAll('.', ''));
-      if (current != null && store != null) {
-        return store > current;
-      }
-    }
-    return storeVersion != localVersion;
-  }
+  bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
 
   /// The current version of the app.
-  String? localVersion;
+  final String localVersion;
 
   /// The most recent version of the app in the store.
-  String? storeVersion;
+  final String storeVersion;
 
   /// A link to the app store page where the app can be updated.
-  String? appStoreLink;
+  final String appStoreLink;
 
-  VersionStatus({this.localVersion, this.storeVersion});
+  VersionStatus._({
+    required this.localVersion,
+    required this.storeVersion,
+    required this.appStoreLink,
+  });
 }
 
 class NewVersion {
@@ -78,9 +71,9 @@ class NewVersion {
   final String? iOSAppStoreCountry;
 
   NewVersion({
+    required this.context,
     this.androidId,
     this.iOSId,
-    required this.context,
     this.dismissAction,
     this.dismissText: 'Maybe Later',
     this.updateText: 'Update',
@@ -103,28 +96,20 @@ class NewVersion {
   /// way.
   Future<VersionStatus?> getVersionStatus() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    VersionStatus versionStatus =
-        VersionStatus(localVersion: packageInfo.version);
-    switch (Theme.of(context).platform) {
-      case TargetPlatform.android:
-        final id = androidId ?? packageInfo.packageName;
-        versionStatus = await _getAndroidStoreVersion(id, versionStatus);
-        break;
-      case TargetPlatform.iOS:
-        final id = iOSId ?? packageInfo.packageName;
-        versionStatus = await _getiOSStoreVersion(id, versionStatus);
-        break;
-      default:
-        debugPrint(
-            'This target platform is not yet supported by this package.');
+    if (Platform.isIOS) {
+      return _getiOSStoreVersion(packageInfo);
+    } else if (Platform.isAndroid) {
+      return _getAndroidStoreVersion(packageInfo);
+    } else {
+      debugPrint(
+          'The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
     }
-
-    return versionStatus;
   }
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
-  _getiOSStoreVersion(String id, VersionStatus versionStatus) async {
+  Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
+    final id = iOSId ?? packageInfo.packageName;
     final parameters = {"bundleId": "$id"};
     if (iOSAppStoreCountry != null) {
       parameters.addAll({"country": iOSAppStoreCountry!});
@@ -136,13 +121,17 @@ class NewVersion {
       return null;
     }
     final jsonObj = json.decode(response.body);
-    versionStatus.storeVersion = jsonObj['results'][0]['version'];
-    versionStatus.appStoreLink = jsonObj['results'][0]['trackViewUrl'];
-    return versionStatus;
+    return VersionStatus._(
+      localVersion: packageInfo.version,
+      storeVersion: jsonObj['results'][0]['version'],
+      appStoreLink: jsonObj['results'][0]['trackViewUrl'],
+    );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  _getAndroidStoreVersion(String id, VersionStatus versionStatus) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(
+      PackageInfo packageInfo) async {
+    final id = androidId ?? packageInfo.packageName;
     final uri =
         Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
     final response = await http.get(uri);
@@ -155,9 +144,11 @@ class NewVersion {
     final versionElement = elements.firstWhere(
       (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
     );
-    versionStatus.storeVersion = versionElement.querySelector('.htlgb')!.text;
-    versionStatus.appStoreLink = uri.toString();
-    return versionStatus;
+    return VersionStatus._(
+      localVersion: packageInfo.version,
+      storeVersion: versionElement.querySelector('.htlgb')!.text,
+      appStoreLink: uri.toString(),
+    );
   }
 
   /// Shows the user a platform-specific alert about the app update. The user
@@ -173,7 +164,7 @@ class NewVersion {
         () => Navigator.of(context, rootNavigator: true).pop();
     final updateText = Text(this.updateText);
     final updateAction = () {
-      _launchAppStore(versionStatus.appStoreLink!);
+      _launchAppStore(versionStatus.appStoreLink);
       Navigator.of(context, rootNavigator: true).pop();
     };
     final platform = Theme.of(context).platform;
