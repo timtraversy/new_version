@@ -24,7 +24,23 @@ class VersionStatus {
   final String appStoreLink;
 
   /// True if the there is a more recent version of the app in the store.
-  bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
+  // bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
+  // version strings can be of the form xx.yy.zz (build)
+  bool get canUpdate {
+    final localFields = localVersion.split('.');
+    final storeFields = storeVersion.split('.');
+    String localPad = '';
+    String storePad = '';
+    for (int i = 0; i < storeFields.length; i++) {
+      localPad = localPad + localFields[i].padLeft(3, '0');
+      storePad = storePad + storeFields[i].padLeft(3, '0');
+    }
+    // print('new_version canUpdate local $localPad store $storePad');
+    if (localPad.compareTo(storePad) < 0)
+      return true;
+    else
+      return false;
+  }
 
   VersionStatus._({
     required this.localVersion,
