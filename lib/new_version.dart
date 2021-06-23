@@ -23,7 +23,9 @@ class VersionStatus {
   /// A link to the app store page where the app can be updated.
   final String appStoreLink;
 
+  /// The release notes for the store version of the app.
   final String? releaseNotes;
+
   /// True if the there is a more recent version of the app in the store.
   // bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
   // version strings can be of the form xx.yy.zz (build)
@@ -123,6 +125,7 @@ class NewVersion {
       localVersion: packageInfo.version,
       storeVersion: jsonObj['results'][0]['version'],
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
+      releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
   }
 
