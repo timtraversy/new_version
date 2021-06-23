@@ -159,6 +159,7 @@ class NewVersion {
     String dialogTitle = 'Update Available',
     String? dialogText,
     String updateButtonText = 'Update',
+    bool allowDismissal = true,
     String dismissButtonText = 'Maybe Later',
     VoidCallback? dismissAction,
   }) async {
@@ -167,47 +168,61 @@ class NewVersion {
       dialogText ??
           'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
     );
+
     final updateButtonTextWidget = Text(updateButtonText);
-    final dismissButtonTextWidget = Text(dismissButtonText);
-    dismissAction =
-        dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
-      Navigator.of(context, rootNavigator: true).pop();
+      if (allowDismissal) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     };
+
+    List<Widget> actions = [
+      Platform.isAndroid
+          ? TextButton(
+              child: updateButtonTextWidget,
+              onPressed: updateAction,
+            )
+          : CupertinoDialogAction(
+              child: updateButtonTextWidget,
+              onPressed: updateAction,
+            ),
+    ];
+
+    if (allowDismissal) {
+      final dismissButtonTextWidget = Text(dismissButtonText);
+      dismissAction = dismissAction ??
+          () => Navigator.of(context, rootNavigator: true).pop();
+      actions.add(
+        Platform.isAndroid
+            ? TextButton(
+                child: dismissButtonTextWidget,
+                onPressed: dismissAction,
+              )
+            : CupertinoDialogAction(
+                child: dismissButtonTextWidget,
+                onPressed: dismissAction,
+              ),
+      );
+    }
 
     showDialog(
       context: context,
+      barrierDismissible: allowDismissal,
       builder: (BuildContext context) {
-        return Platform.isAndroid
-            ? AlertDialog(
-                title: dialogTitleWidget,
-                content: dialogTextWidget,
-                actions: <Widget>[
-                  TextButton(
-                    child: dismissButtonTextWidget,
-                    onPressed: dismissAction,
+        return WillPopScope(
+            child: Platform.isAndroid
+                ? AlertDialog(
+                    title: dialogTitleWidget,
+                    content: dialogTextWidget,
+                    actions: actions,
+                  )
+                : CupertinoAlertDialog(
+                    title: dialogTitleWidget,
+                    content: dialogTextWidget,
+                    actions: actions,
                   ),
-                  TextButton(
-                    child: updateButtonTextWidget,
-                    onPressed: updateAction,
-                  ),
-                ],
-              )
-            : CupertinoAlertDialog(
-                title: dialogTitleWidget,
-                content: dialogTextWidget,
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    child: dismissButtonTextWidget,
-                    onPressed: dismissAction,
-                  ),
-                  CupertinoDialogAction(
-                    child: updateButtonTextWidget,
-                    onPressed: updateAction,
-                  ),
-                ],
-              );
+            onWillPop: () => Future.value(allowDismissal));
       },
     );
   }
