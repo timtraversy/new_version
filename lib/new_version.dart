@@ -23,6 +23,9 @@ class VersionStatus {
   /// A link to the app store page where the app can be updated.
   final String appStoreLink;
 
+  /// The release notes for the store version of the app.
+  final String? releaseNotes;
+
   /// True if the there is a more recent version of the app in the store.
   // bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
   // version strings can be of the form xx.yy.zz (build)
@@ -52,6 +55,7 @@ class VersionStatus {
     required this.localVersion,
     required this.storeVersion,
     required this.appStoreLink,
+    this.releaseNotes,
   });
 }
 
@@ -121,6 +125,7 @@ class NewVersion {
       localVersion: packageInfo.version,
       storeVersion: jsonObj['results'][0]['version'],
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
+      releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
   }
 
@@ -136,14 +141,27 @@ class NewVersion {
       return null;
     }
     final document = parse(response.body);
-    final elements = document.getElementsByClassName('hAyfc');
-    final versionElement = elements.firstWhere(
+
+    final additionalInfoElements = document.getElementsByClassName('hAyfc');
+    final versionElement = additionalInfoElements.firstWhere(
       (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
     );
+    final storeVersion = versionElement.querySelector('.htlgb')!.text;
+
+    final sectionElements = document.getElementsByClassName('W4P4ne');
+    final releaseNotesElement = sectionElements.firstWhere(
+      (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
+    );
+    final releaseNotes = releaseNotesElement
+        .querySelector('.PHBdkd')
+        ?.querySelector('.DWPxHb')
+        ?.text;
+
     return VersionStatus._(
       localVersion: packageInfo.version,
-      storeVersion: versionElement.querySelector('.htlgb')!.text,
+      storeVersion: storeVersion,
       appStoreLink: uri.toString(),
+      releaseNotes: releaseNotes,
     );
   }
 
