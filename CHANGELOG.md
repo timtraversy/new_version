@@ -1,3 +1,7 @@
+## 0.2.1 - 6/23/23
+
+* Optional field `releaseNotes` added to `VersionStatus`, which contains the release notes for a published app.
+* Optional parameter `allowDismissal` added to `showUpdateDialog` function. When it is set to false, the plugin prevents the user from dismissing the update dialog. By default it is true.
 ## 0.2.0 - 3/23/21
 
 #### Breaking changes
