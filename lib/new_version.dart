@@ -141,14 +141,27 @@ class NewVersion {
       return null;
     }
     final document = parse(response.body);
-    final elements = document.getElementsByClassName('hAyfc');
-    final versionElement = elements.firstWhere(
+
+    final additionalInfoElements = document.getElementsByClassName('hAyfc');
+    final versionElement = additionalInfoElements.firstWhere(
       (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
     );
+    final storeVersion = versionElement.querySelector('.htlgb')!.text;
+
+    final sectionElements = document.getElementsByClassName('W4P4ne');
+    final releaseNotesElement = sectionElements.firstWhere(
+      (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
+    );
+    final releaseNotes = releaseNotesElement
+        .querySelector('.PHBdkd')
+        ?.querySelector('.DWPxHb')
+        ?.text;
+
     return VersionStatus._(
       localVersion: packageInfo.version,
-      storeVersion: versionElement.querySelector('.htlgb')!.text,
+      storeVersion: storeVersion,
       appStoreLink: uri.toString(),
+      releaseNotes: releaseNotes,
     );
   }
 
