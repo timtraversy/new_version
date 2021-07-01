@@ -1,9 +1,9 @@
 library new_version;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
@@ -130,11 +130,9 @@ class NewVersion {
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  Future<VersionStatus?> _getAndroidStoreVersion(
-      PackageInfo packageInfo) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri =
-        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
+    final uri = Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       debugPrint('Can\'t find an app in the Play Store with the id: $id');
@@ -143,25 +141,24 @@ class NewVersion {
     final document = parse(response.body);
 
     final additionalInfoElements = document.getElementsByClassName('hAyfc');
-    final versionElement = additionalInfoElements.firstWhere(
-      (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
+    final versionElement = additionalInfoElements.firstWhereOrNull(
+      (elm) => elm.querySelector('.BgcNfc')?.text == 'Current Version',
     );
-    final storeVersion = versionElement.querySelector('.htlgb')!.text;
+    final storeVersion = versionElement?.querySelector('.htlgb')?.text ?? '';
 
     final sectionElements = document.getElementsByClassName('W4P4ne');
-    final releaseNotesElement = sectionElements.firstWhere(
-      (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
+    String? releaseNotes;
+    final releaseNotesElement = sectionElements.firstWhereOrNull(
+      (elm) => elm.querySelector('.wSaTQd')?.text == 'What\'s New',
     );
-    final releaseNotes = releaseNotesElement
-        .querySelector('.PHBdkd')
-        ?.querySelector('.DWPxHb')
-        ?.text;
+    releaseNotes =
+        releaseNotesElement?.querySelector('.PHBdkd')?.querySelector('.DWPxHb')?.text;
 
     return VersionStatus._(
       localVersion: packageInfo.version,
       storeVersion: storeVersion,
       appStoreLink: uri.toString(),
-      releaseNotes: releaseNotes,
+      releaseNotes: releaseNotes ?? '',
     );
   }
 
@@ -209,8 +206,8 @@ class NewVersion {
 
     if (allowDismissal) {
       final dismissButtonTextWidget = Text(dismissButtonText);
-      dismissAction = dismissAction ??
-          () => Navigator.of(context, rootNavigator: true).pop();
+      dismissAction =
+          dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
       actions.add(
         Platform.isAndroid
             ? TextButton(
@@ -255,3 +252,4 @@ class NewVersion {
     }
   }
 }
+
