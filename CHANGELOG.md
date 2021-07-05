@@ -1,4 +1,7 @@
-## 0.2.1 - 6/23/23
+## 0.2.2 - 7/5/21
+
+* #45: Check if What's New text exists before accessing it to prevent crash.
+## 0.2.1 - 6/23/21
 
 * Optional field `releaseNotes` added to `VersionStatus`, which contains the release notes for a published app.
 * Optional parameter `allowDismissal` added to `showUpdateDialog` function. When it is set to false, the plugin prevents the user from dismissing the update dialog. By default it is true.
