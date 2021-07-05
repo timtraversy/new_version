@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
@@ -149,11 +150,11 @@ class NewVersion {
     final storeVersion = versionElement.querySelector('.htlgb')!.text;
 
     final sectionElements = document.getElementsByClassName('W4P4ne');
-    final releaseNotesElement = sectionElements.firstWhere(
+    final releaseNotesElement = sectionElements.firstWhereOrNull(
       (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
     );
     final releaseNotes = releaseNotesElement
-        .querySelector('.PHBdkd')
+        ?.querySelector('.PHBdkd')
         ?.querySelector('.DWPxHb')
         ?.text;
 
