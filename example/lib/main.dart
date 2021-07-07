@@ -47,17 +47,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   advancedStatusCheck(NewVersion newVersion) async {
     final status = await newVersion.getVersionStatus();
-    debugPrint(status.releaseNotes);
-    debugPrint(status.appStoreLink);
-    debugPrint(status.localVersion);
-    debugPrint(status.storeVersion);
-    debugPrint(status.canUpdate.toString());
-    newVersion.showUpdateDialog(
-      context: context,
-      versionStatus: status,
-      dialogTitle: 'Custom Title',
-      dialogText: 'Custom Text',
-    );
+    if (status != null) {
+      debugPrint(status.releaseNotes);
+      debugPrint(status.appStoreLink);
+      debugPrint(status.localVersion);
+      debugPrint(status.storeVersion);
+      debugPrint(status.canUpdate.toString());
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status,
+        dialogTitle: 'Custom Title',
+        dialogText: 'Custom Text',
+      );
+    }
   }
 
   @override
