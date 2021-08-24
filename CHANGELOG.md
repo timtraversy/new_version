@@ -1,3 +1,6 @@
+## 0.2.3 - 8/24/21
+
+* #50: Check for empty result from iOS App Store if the app does not exist in the store
 ## 0.2.2 - 7/5/21
 
 * #45: Check if What's New text exists before accessing it to prevent crash.
