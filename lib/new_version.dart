@@ -118,10 +118,15 @@ class NewVersion {
     var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
     final response = await http.get(uri);
     if (response.statusCode != 200) {
-      debugPrint('Can\'t find an app in the App Store with the id: $id');
+      debugPrint('Failed to query iOS App Store');
       return null;
     }
     final jsonObj = json.decode(response.body);
+    final List results = jsonObj['results'];
+    if (results.isEmpty) {
+      debugPrint('Can\'t find an app in the App Store with the id: $id');
+      return null;
+    }
     return VersionStatus._(
       localVersion: packageInfo.version,
       storeVersion: jsonObj['results'][0]['version'],
