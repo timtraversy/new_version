@@ -12,7 +12,7 @@ See more at the [Dart Packages page.](https://pub.dartlang.org/packages/new_vers
 Add new_version as [a dependency in your `pubspec.yaml` file.](https://flutter.io/using-packages/)
 ```
 dependencies:
-  new_version: ^0.2.0
+  new_version: ^0.2.3
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ The plugin will automatically use your Flutter package identifier to check the a
 
 *For iOS:* If your app is only available outside the U.S. App Store, you will need to set `iOSAppStoreCountry` to the two-letter country code of the store you want to search. See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
 
-You can use then use the plugin in two ways.
+You can then use the plugin in two ways.
 
 ### Quickstart
 Calling `showAlertIfNecessary` with your app's `BuildContext` will check if the app can be updated, and will automatically display a platform-specific alert that the user can use to go to the app store.
