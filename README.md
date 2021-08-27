@@ -50,8 +50,6 @@ newVersion.showUpdateDialog(
   dialogText: 'Custom dialog text',
   updateButtonText: 'Custom update button text',
   dismissButtonText: 'Custom dismiss button text',
-  dismissAction: () {
-    // function to run after dialog is dismissed
-  },
+  dismissAction: () => functionToRunAfterDialogDismissed(),
 )
 ```
