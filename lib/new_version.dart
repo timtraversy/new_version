@@ -235,17 +235,20 @@ class NewVersion {
       barrierDismissible: allowDismissal,
       builder: (BuildContext context) {
         return WillPopScope(
-            child: Platform.isAndroid
-                ? AlertDialog(
-                    title: dialogTitleWidget,
-                    content: dialogTextWidget,
-                    actions: actions,
-                  )
-                : CupertinoAlertDialog(
-                    title: dialogTitleWidget,
-                    content: dialogTextWidget,
-                    actions: actions,
-                  ),
+            child: AlertDialog(
+              // insetPadding: EdgeInsets.zero,
+              titlePadding: EdgeInsets.zero,
+              contentPadding: EdgeInsets.zero,
+              // title: dialogTitleWidget,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              content: Image.asset('assets/image.png'),
+              // content: Image.network(
+              //     'https://firebasestorage.googleapis.com/v0/b/gogenda-f3d7b.appspot.com/o/iOSAppScreenshot-6-5inchArtboard-1.png?alt=media&token=7da019df-f70b-42c9-ad81-33a4be8da65c'),
+              actions: actions,
+            ),
             onWillPop: () => Future.value(allowDismissal));
       },
     );
