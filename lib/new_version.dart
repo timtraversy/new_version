@@ -244,9 +244,7 @@ class NewVersion {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.0),
               ),
-              content: Image.asset('assets/image.png'),
-              // content: Image.network(
-              //     'https://firebasestorage.googleapis.com/v0/b/gogenda-f3d7b.appspot.com/o/iOSAppScreenshot-6-5inchArtboard-1.png?alt=media&token=7da019df-f70b-42c9-ad81-33a4be8da65c'),
+              content: Image.asset('assets/image.png', package: 'new_version'),
               actions: actions,
             ),
             onWillPop: () => Future.value(allowDismissal));
