@@ -252,7 +252,7 @@ class NewVersion {
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  void _launchAppStore(String appStoreLink) async {
+  Future<void> _launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
     if (await canLaunch(appStoreLink)) {
       await launch(appStoreLink);
@@ -260,4 +260,8 @@ class NewVersion {
       throw 'Could not launch appStoreLink';
     }
   }
+
+  /// Launches the Apple App Store or Google Play Store page for the app.
+  Future<void> openStore(VersionStatus versionStatus) =>
+      _launchAppStore(versionStatus.appStoreLink);
 }
