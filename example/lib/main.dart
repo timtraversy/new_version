@@ -41,32 +41,35 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  basicStatusCheck(NewVersion newVersion) {
+  void basicStatusCheck(NewVersion newVersion) {
     newVersion.showAlertIfNecessary(context: context);
   }
 
-  advancedStatusCheck(NewVersion newVersion) async {
+  Future<void> advancedStatusCheck(NewVersion newVersion) async {
     final status = await newVersion.getVersionStatus();
-    if (status != null) {
-      debugPrint(status.releaseNotes);
-      debugPrint(status.appStoreLink);
-      debugPrint(status.localVersion);
-      debugPrint(status.storeVersion);
-      debugPrint(status.canUpdate.toString());
-      newVersion.showUpdateDialog(
-        context: context,
-        versionStatus: status,
-        dialogTitle: 'Custom Title',
-        dialogText: 'Custom Text',
-      );
+
+    if (status == null) {
+      return; // happens when there the app version in the store can not be determined
     }
+
+    debugPrint(status.releaseNotes);
+    debugPrint(status.appStoreLink);
+    debugPrint(status.localVersion);
+    debugPrint(status.storeVersion);
+    debugPrint(status.canUpdate.toString());
+    await newVersion.showUpdateDialog(
+      context: context,
+      versionStatus: status,
+      dialogTitle: 'Custom Title',
+      dialogText: 'Custom Text',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Example App"),
+        title: Text('Example App'),
       ),
     );
   }
