@@ -77,10 +77,16 @@ class NewVersion {
   /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
   final String? iOSAppStoreCountry;
 
+  /// An optional value that will force the plugin to always return [forceAppVersion]
+  /// as the value of [storeVersion]. This can be useful to test the plugin's behavior
+  /// before publishng a new version.
+  final String? forceAppVersion;
+
   NewVersion({
     this.androidId,
     this.iOSId,
     this.iOSAppStoreCountry,
+    this.forceAppVersion,
   });
 
   /// This checks the version status, then displays a platform-specific alert
@@ -129,7 +135,7 @@ class NewVersion {
     }
     return VersionStatus._(
       localVersion: packageInfo.version,
-      storeVersion: jsonObj['results'][0]['version'],
+      storeVersion: forceAppVersion ?? jsonObj['results'][0]['version'],
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
@@ -165,7 +171,7 @@ class NewVersion {
 
     return VersionStatus._(
       localVersion: packageInfo.version,
-      storeVersion: storeVersion,
+      storeVersion: forceAppVersion ?? storeVersion,
       appStoreLink: uri.toString(),
       releaseNotes: releaseNotes,
     );
@@ -195,7 +201,7 @@ class NewVersion {
 
     final updateButtonTextWidget = Text(updateButtonText);
     final updateAction = () {
-      _launchAppStore(versionStatus.appStoreLink);
+      launchAppStore(versionStatus.appStoreLink);
       if (allowDismissal) {
         Navigator.of(context, rootNavigator: true).pop();
       }
@@ -252,7 +258,7 @@ class NewVersion {
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  void _launchAppStore(String appStoreLink) async {
+  Future<void> launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
     if (await canLaunch(appStoreLink)) {
       await launch(appStoreLink);
