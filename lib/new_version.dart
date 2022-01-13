@@ -235,7 +235,7 @@ class NewVersion {
       );
     }
 
-    showDialog(
+    await showDialog(
       context: context,
       barrierDismissible: allowDismissal,
       builder: (BuildContext context) {
