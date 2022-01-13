@@ -1,3 +1,7 @@
+## 0.3.0 - 1/13/21
+* #75: Add `forceAppVersion` field to make testing easier.
+* #77: Improve `canUpdate` logic so that greater local version won't prompt for an update.
+
 ## 0.2.3 - 8/24/21
 
 * #50: Check for empty result from iOS App Store if the app does not exist in the store
