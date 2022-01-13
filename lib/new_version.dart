@@ -27,29 +27,28 @@ class VersionStatus {
   /// The release notes for the store version of the app.
   final String? releaseNotes;
 
-  /// True if the there is a more recent version of the app in the store.
-  // bool get canUpdate => localVersion.compareTo(storeVersion).isNegative;
-  // version strings can be of the form xx.yy.zz (build)
+  /// Returns `true` if the store version of the application is greater than the local version.
   bool get canUpdate {
-    // assume version strings can be of the form xx.yy.zz
-    // this implementation correctly compares local 1.10.1 to store 1.9.4
-    try {
-      final localFields = localVersion.split('.');
-      final storeFields = storeVersion.split('.');
-      String localPad = '';
-      String storePad = '';
-      for (int i = 0; i < storeFields.length; i++) {
-        localPad = localPad + localFields[i].padLeft(3, '0');
-        storePad = storePad + storeFields[i].padLeft(3, '0');
-      }
-      // print('new_version canUpdate local $localPad store $storePad');
-      if (localPad.compareTo(storePad) < 0)
+    final local = localVersion.split('.').map(int.parse).toList();
+    final store = storeVersion.split('.').map(int.parse).toList();
+
+    // Each consecutive field in the version notation is less significant than the previous one,
+    // therefore only one comparison needs to yield `true` for it to be determined that the store
+    // version is greater than the local version.
+    for (var i = 0; i < store.length; i++) {
+      // The store version field is newer than the local version.
+      if (store[i] > local[i]) {
         return true;
-      else
+      }
+
+      // The local version field is newer than the store version.
+      if (local[i] > store[i]) {
         return false;
-    } catch (e) {
-      return localVersion.compareTo(storeVersion).isNegative;
+      }
     }
+
+    // The local and store versions are the same.
+    return false;
   }
 
   VersionStatus._({
