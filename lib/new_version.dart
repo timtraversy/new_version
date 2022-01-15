@@ -43,10 +43,7 @@ class VersionStatus {
         storePad = storePad + storeFields[i].padLeft(3, '0');
       }
       // print('new_version canUpdate local $localPad store $storePad');
-      if (localPad.compareTo(storePad) < 0)
-        return true;
-      else
-        return false;
+      return localPad.compareTo(storePad) < 0;
     } catch (e) {
       return localVersion.compareTo(storeVersion).isNegative;
     }
@@ -85,10 +82,11 @@ class NewVersion {
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
-  showAlertIfNecessary({required BuildContext context}) async {
+  Future<void> showAlertIfNecessary({required BuildContext context}) async {
     final VersionStatus? versionStatus = await getVersionStatus();
+
     if (versionStatus != null && versionStatus.canUpdate) {
-      showUpdateDialog(context: context, versionStatus: versionStatus);
+      await showUpdateDialog(context: context, versionStatus: versionStatus);
     }
   }
 
@@ -111,41 +109,47 @@ class NewVersion {
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
     final id = iOSId ?? packageInfo.packageName;
-    final parameters = {"bundleId": "$id"};
+    final parameters = {'bundleId': id};
+
     if (iOSAppStoreCountry != null) {
-      parameters.addAll({"country": iOSAppStoreCountry!});
+      parameters.addAll({'country': iOSAppStoreCountry!});
     }
-    var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
+
+    var uri = Uri.https('itunes.apple.com', '/lookup', parameters);
     final response = await http.get(uri);
+
     if (response.statusCode != 200) {
       debugPrint('Failed to query iOS App Store');
       return null;
     }
-    final jsonObj = json.decode(response.body);
-    final List results = jsonObj['results'];
+
+    final jsonObj = json.decode(response.body) as Map<String, dynamic>;
+    final results = jsonObj['results'] as List<Map<String, String>>;
+
     if (results.isEmpty) {
       debugPrint('Can\'t find an app in the App Store with the id: $id');
       return null;
     }
     return VersionStatus._(
       localVersion: packageInfo.version,
-      storeVersion: jsonObj['results'][0]['version'],
-      appStoreLink: jsonObj['results'][0]['trackViewUrl'],
-      releaseNotes: jsonObj['results'][0]['releaseNotes'],
+      storeVersion: results.first['version']!,
+      appStoreLink: results.first['trackViewUrl']!,
+      releaseNotes: results.first['releaseNotes'],
     );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  Future<VersionStatus?> _getAndroidStoreVersion(
-      PackageInfo packageInfo) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri =
-        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
+    final parameters = {'id': id};
+    final uri = Uri.https('play.google.com', '/store/apps/details', parameters);
     final response = await http.get(uri);
+
     if (response.statusCode != 200) {
       debugPrint('Can\'t find an app in the Play Store with the id: $id');
       return null;
     }
+
     final document = parse(response.body);
 
     final additionalInfoElements = document.getElementsByClassName('hAyfc');
@@ -177,7 +181,7 @@ class NewVersion {
   /// To change the appearance and behavior of the update dialog, you can
   /// optionally provide [dialogTitle], [dialogText], [updateButtonText],
   /// [dismissButtonText], and [dismissAction] parameters.
-  void showUpdateDialog({
+  Future<void> showUpdateDialog({
     required BuildContext context,
     required VersionStatus versionStatus,
     String dialogTitle = 'Update Available',
@@ -196,6 +200,7 @@ class NewVersion {
     final updateButtonTextWidget = Text(updateButtonText);
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
+
       if (allowDismissal) {
         Navigator.of(context, rootNavigator: true).pop();
       }
@@ -230,7 +235,7 @@ class NewVersion {
       );
     }
 
-    showDialog(
+    await showDialog<void>(
       context: context,
       barrierDismissible: allowDismissal,
       builder: (BuildContext context) {
