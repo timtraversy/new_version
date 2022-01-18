@@ -124,17 +124,19 @@ class NewVersion {
     }
 
     final jsonObj = json.decode(response.body) as Map<String, dynamic>;
-    final results = jsonObj['results'] as List<Map<String, String>>;
+    final results = jsonObj['results'] as List<dynamic>;
 
     if (results.isEmpty) {
       debugPrint('Can\'t find an app in the App Store with the id: $id');
       return null;
     }
+
+    final first = results.first as Map<String, String>;
     return VersionStatus._(
       localVersion: packageInfo.version,
-      storeVersion: results.first['version']!,
-      appStoreLink: results.first['trackViewUrl']!,
-      releaseNotes: results.first['releaseNotes'],
+      storeVersion: first['version']!,
+      appStoreLink: first['trackViewUrl']!,
+      releaseNotes: first['releaseNotes'],
     );
   }
 
