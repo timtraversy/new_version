@@ -12,6 +12,14 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
+/// The different design options.
+enum Design {
+  android,
+  ios,
+  useOsStyle,
+}
+
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
 class VersionStatus {
@@ -100,8 +108,7 @@ class NewVersion {
     } else if (Platform.isAndroid) {
       return _getAndroidStoreVersion(packageInfo);
     } else {
-      debugPrint(
-          'The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
+      debugPrint('The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
     }
   }
 
@@ -195,9 +202,11 @@ class NewVersion {
     VoidCallback? dismissAction,
     ButtonStyle? updateButtonStyle,
     ButtonStyle? dismissButtonStyle,
+    Design design = Design.useOsStyle,
   }) async {
     dialogText ??= Text('You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}');
-
+    final useAndroidDesign = design == Design.android || (design == Design.useOsStyle && Platform.isAndroid);
+    final List<Widget> actions = [];
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
 
@@ -206,12 +215,10 @@ class NewVersion {
       }
     };
 
-    final List<Widget> actions = [];
-
     if (allowDismissal) {
       dismissAction ??= () => Navigator.of(context, rootNavigator: true).pop();
 
-      if(Platform.isAndroid) {
+      if(useAndroidDesign) {
         actions.add(TextButton(
           child: dismissButtonText,
           onPressed: dismissAction,
@@ -225,7 +232,7 @@ class NewVersion {
       }
     }
 
-    if(Platform.isAndroid){
+    if(useAndroidDesign){
       actions.add(TextButton(
         child: updateButtonText,
         onPressed: updateAction,
@@ -245,7 +252,7 @@ class NewVersion {
       builder: (BuildContext context) {
         return WillPopScope(
           onWillPop: () => Future.value(allowDismissal),
-          child: Platform.isAndroid
+          child: useAndroidDesign
             ? AlertDialog(
                 title: dialogTitle,
                 content: dialogText,

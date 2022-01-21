@@ -60,8 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
     await newVersion.showUpdateDialog(
       context: context,
       versionStatus: status,
-      dialogTitle: 'Custom Title',
-      dialogText: 'Custom Text',
+      dialogTitle: const Text('Custom Title'),
+      dialogText: const Text('Custom Text'),
     );
   }
 
