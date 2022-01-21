@@ -207,6 +207,7 @@ class NewVersion {
     dialogText ??= Text('You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}');
     final useAndroidDesign = design == Design.android || (design == Design.useOsStyle && Platform.isAndroid);
     final List<Widget> actions = [];
+
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
 
