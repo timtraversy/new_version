@@ -183,23 +183,21 @@ class NewVersion {
   /// To change the appearance and behavior of the update dialog, you can
   /// optionally provide [dialogTitle], [dialogText], [updateButtonText],
   /// [dismissButtonText], and [dismissAction] parameters.
+  /// The [updateButtonStyle] and the [dismissButtonStyle] parameters are only used on Android.
   Future<void> showUpdateDialog({
     required BuildContext context,
     required VersionStatus versionStatus,
-    String dialogTitle = 'Update Available',
-    String? dialogText,
-    String updateButtonText = 'Update',
+    Widget dialogTitle = const Text('Update Available'),
+    Widget? dialogText,
+    Widget updateButtonText = const Text('Update now'),
     bool allowDismissal = true,
-    String dismissButtonText = 'Maybe Later',
+    Widget dismissButtonText = const Text('Maybe Later'),
     VoidCallback? dismissAction,
+    ButtonStyle? updateButtonStyle,
+    ButtonStyle? dismissButtonStyle,
   }) async {
-    final dialogTitleWidget = Text(dialogTitle);
-    final dialogTextWidget = Text(
-      dialogText ??
-          'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
-    );
+    dialogText ??= Text('You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}');
 
-    final updateButtonTextWidget = Text(updateButtonText);
     final updateAction = () {
       _launchAppStore(versionStatus.appStoreLink);
 
@@ -208,33 +206,37 @@ class NewVersion {
       }
     };
 
-    List<Widget> actions = [
-      Platform.isAndroid
-          ? TextButton(
-              child: updateButtonTextWidget,
-              onPressed: updateAction,
-            )
-          : CupertinoDialogAction(
-              child: updateButtonTextWidget,
-              onPressed: updateAction,
-            ),
-    ];
+    final List<Widget> actions = [];
 
     if (allowDismissal) {
-      final dismissButtonTextWidget = Text(dismissButtonText);
-      dismissAction = dismissAction ??
-          () => Navigator.of(context, rootNavigator: true).pop();
-      actions.add(
-        Platform.isAndroid
-            ? TextButton(
-                child: dismissButtonTextWidget,
-                onPressed: dismissAction,
-              )
-            : CupertinoDialogAction(
-                child: dismissButtonTextWidget,
-                onPressed: dismissAction,
-              ),
-      );
+      dismissAction ??= () => Navigator.of(context, rootNavigator: true).pop();
+
+      if(Platform.isAndroid) {
+        actions.add(TextButton(
+          child: dismissButtonText,
+          onPressed: dismissAction,
+          style: dismissButtonStyle,
+        ));
+      } else {
+        actions.add(CupertinoDialogAction(
+          child: dismissButtonText,
+          onPressed: dismissAction,
+        ));
+      }
+    }
+
+    if(Platform.isAndroid){
+      actions.add(TextButton(
+        child: updateButtonText,
+        onPressed: updateAction,
+        style: updateButtonStyle,
+      ));
+    } else {
+      actions.add(CupertinoDialogAction(
+        child: updateButtonText,
+        onPressed: updateAction,
+        isDefaultAction: true,
+      ));
     }
 
     await showDialog<void>(
@@ -242,29 +244,30 @@ class NewVersion {
       barrierDismissible: allowDismissal,
       builder: (BuildContext context) {
         return WillPopScope(
-            child: Platform.isAndroid
-                ? AlertDialog(
-                    title: dialogTitleWidget,
-                    content: dialogTextWidget,
-                    actions: actions,
-                  )
-                : CupertinoAlertDialog(
-                    title: dialogTitleWidget,
-                    content: dialogTextWidget,
-                    actions: actions,
-                  ),
-            onWillPop: () => Future.value(allowDismissal));
+          onWillPop: () => Future.value(allowDismissal),
+          child: Platform.isAndroid
+            ? AlertDialog(
+                title: dialogTitle,
+                content: dialogText,
+                actions: actions,
+              )
+            : CupertinoAlertDialog(
+                title: dialogTitle,
+                content: dialogText,
+                actions: actions,
+              ),
+        );
       },
     );
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  void _launchAppStore(String appStoreLink) async {
+  Future<void> _launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
     if (await canLaunch(appStoreLink)) {
       await launch(appStoreLink);
     } else {
-      throw 'Could not launch appStoreLink';
+      throw Exception('Could not launch appStoreLink');
     }
   }
 }
