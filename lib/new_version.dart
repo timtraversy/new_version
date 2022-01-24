@@ -112,6 +112,9 @@ class NewVersion {
     }
   }
 
+  String _getLocalVersion(packageInfo) =>
+      RegExp(r'\d+\.\d+\.\d+').stringMatch(packageInfo.version) ?? '0.0.0';
+
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
@@ -133,7 +136,7 @@ class NewVersion {
       return null;
     }
     return VersionStatus._(
-      localVersion: packageInfo.version,
+      localVersion: _getLocalVersion(packageInfo),
       storeVersion: forceAppVersion ?? jsonObj['results'][0]['version'],
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
@@ -169,7 +172,7 @@ class NewVersion {
         ?.text;
 
     return VersionStatus._(
-      localVersion: packageInfo.version,
+      localVersion: _getLocalVersion(packageInfo),
       storeVersion: forceAppVersion ?? storeVersion,
       appStoreLink: uri.toString(),
       releaseNotes: releaseNotes,
