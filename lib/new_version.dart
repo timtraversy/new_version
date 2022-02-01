@@ -112,8 +112,10 @@ class NewVersion {
     }
   }
 
-  String _getLocalVersion(packageInfo) =>
-      RegExp(r'\d+\.\d+\.\d+').stringMatch(packageInfo.version) ?? '0.0.0';
+  /// This function attempts to clean local version strings so they match the MAJOR.MINOR.PATCH
+  /// versioning pattern, so they can be properly compared with the store version.
+  String _getCleanVersion(String version) =>
+      RegExp(r'\d+\.\d+\.\d+').stringMatch(version) ?? '0.0.0';
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
@@ -136,8 +138,9 @@ class NewVersion {
       return null;
     }
     return VersionStatus._(
-      localVersion: _getLocalVersion(packageInfo),
-      storeVersion: forceAppVersion ?? jsonObj['results'][0]['version'],
+      localVersion: _getCleanVersion(packageInfo.version),
+      storeVersion:
+          _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
@@ -172,8 +175,8 @@ class NewVersion {
         ?.text;
 
     return VersionStatus._(
-      localVersion: _getLocalVersion(packageInfo),
-      storeVersion: forceAppVersion ?? storeVersion,
+      localVersion: _getCleanVersion(packageInfo.version),
+      storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion),
       appStoreLink: uri.toString(),
       releaseNotes: releaseNotes,
     );
