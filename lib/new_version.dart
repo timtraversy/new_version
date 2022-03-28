@@ -29,8 +29,16 @@ class VersionStatus {
 
   /// Returns `true` if the store version of the application is greater than the local version.
   bool get canUpdate {
-    final local = localVersion.split('.').map(int.parse).toList();
-    final store = storeVersion.split('.').map(int.parse).toList();
+    // final local = localVersion.split('.').map(int.parse).toList();
+    // final store = storeVersion.split('.').map(int.parse).toList();
+
+    //The version CAN look like this as well: 1.0.3+77.
+    String localBuildNumber = localVersion.split("+").length > 1 ? localVersion.split("+")[1] : "0";
+    String storeBuildNumber = storeVersion.split("+").length > 1 ? storeVersion.split("+")[1] : "0";
+    final local = localVersion.split('+')[0].split(".").map(int.parse).toList();
+    local.add(int.parse(localBuildNumber));
+    final store = storeVersion.split('+')[0].split(".").map(int.parse).toList();
+    store.add(int.parse(storeBuildNumber));
 
     // Each consecutive field in the version notation is less significant than the previous one,
     // therefore only one comparison needs to yield `true` for it to be determined that the store
@@ -107,15 +115,15 @@ class NewVersion {
     } else if (Platform.isAndroid) {
       return _getAndroidStoreVersion(packageInfo);
     } else {
-      debugPrint(
-          'The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
+      debugPrint('The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
     }
   }
 
-  /// This function attempts to clean local version strings so they match the MAJOR.MINOR.PATCH
+  /// This function attempts to clean local version strings so they match the MAJOR.MINOR.PATCH+BUILD
   /// versioning pattern, so they can be properly compared with the store version.
-  String _getCleanVersion(String version) =>
-      RegExp(r'\d+\.\d+\.\d+').stringMatch(version) ?? '0.0.0';
+  String _getCleanVersion(String version) {
+    return RegExp(r'\d+\.\d+\.\d+\+\d+').stringMatch(version) ?? '0.0.0+0';
+  }
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
@@ -139,19 +147,16 @@ class NewVersion {
     }
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion:
-          _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
+      storeVersion: _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  Future<VersionStatus?> _getAndroidStoreVersion(
-      PackageInfo packageInfo) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri =
-        Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
+    final uri = Uri.https("play.google.com", "/store/apps/details", {"id": "$id"});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       debugPrint('Can\'t find an app in the Play Store with the id: $id');
@@ -169,10 +174,7 @@ class NewVersion {
     final releaseNotesElement = sectionElements.firstWhereOrNull(
       (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
     );
-    final releaseNotes = releaseNotesElement
-        ?.querySelector('.PHBdkd')
-        ?.querySelector('.DWPxHb')
-        ?.text;
+    final releaseNotes = releaseNotesElement?.querySelector('.PHBdkd')?.querySelector('.DWPxHb')?.text;
 
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
@@ -200,8 +202,7 @@ class NewVersion {
   }) async {
     final dialogTitleWidget = Text(dialogTitle);
     final dialogTextWidget = Text(
-      dialogText ??
-          'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
+      dialogText ?? 'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
     );
 
     final updateButtonTextWidget = Text(updateButtonText);
@@ -226,8 +227,7 @@ class NewVersion {
 
     if (allowDismissal) {
       final dismissButtonTextWidget = Text(dismissButtonText);
-      dismissAction = dismissAction ??
-          () => Navigator.of(context, rootNavigator: true).pop();
+      dismissAction = dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
       actions.add(
         Platform.isAndroid
             ? TextButton(
