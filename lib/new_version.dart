@@ -146,7 +146,7 @@ class NewVersion {
       return null;
     }
     return VersionStatus._(
-      localVersion: _getCleanVersion(packageInfo.version),
+      localVersion: _getCleanVersion("${packageInfo.version}${packageInfo.buildNumber.isNotEmpty ? "+${packageInfo.buildNumber}" : ""}"),
       storeVersion: _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
@@ -177,7 +177,7 @@ class NewVersion {
     final releaseNotes = releaseNotesElement?.querySelector('.PHBdkd')?.querySelector('.DWPxHb')?.text;
 
     return VersionStatus._(
-      localVersion: _getCleanVersion(packageInfo.version),
+      localVersion: _getCleanVersion("${packageInfo.version}${packageInfo.buildNumber.isNotEmpty ? "+${packageInfo.buildNumber}" : ""}"),
       storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion),
       appStoreLink: uri.toString(),
       releaseNotes: releaseNotes,
