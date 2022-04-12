@@ -122,7 +122,7 @@ class NewVersion {
   /// This function attempts to clean local version strings so they match the MAJOR.MINOR.PATCH+BUILD
   /// versioning pattern, so they can be properly compared with the store version.
   String _getCleanVersion(String version) {
-    return RegExp(r'\d+\.\d+\.\d+\+\d+').stringMatch(version) ?? '0.0.0+0';
+    return RegExp(r'\d+\.\d+\.\d+(\+\d+)?').stringMatch(version) ?? '0.0.0+0';
   }
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
