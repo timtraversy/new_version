@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
@@ -51,7 +51,7 @@ class VersionStatus {
     return false;
   }
 
-  VersionStatus._({
+  VersionStatus({
     required this.localVersion,
     required this.storeVersion,
     required this.appStoreLink,
@@ -109,6 +109,7 @@ class NewVersion {
     } else {
       debugPrint(
           'The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
+      return null;
     }
   }
 
@@ -137,7 +138,7 @@ class NewVersion {
       debugPrint('Can\'t find an app in the App Store with the id: $id');
       return null;
     }
-    return VersionStatus._(
+    return VersionStatus(
       localVersion: _getCleanVersion(packageInfo.version),
       storeVersion:
           _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
@@ -174,7 +175,7 @@ class NewVersion {
         ?.querySelector('.DWPxHb')
         ?.text;
 
-    return VersionStatus._(
+    return VersionStatus(
       localVersion: _getCleanVersion(packageInfo.version),
       storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion),
       appStoreLink: uri.toString(),
@@ -265,8 +266,8 @@ class NewVersion {
   /// Launches the Apple App Store or Google Play Store page for the app.
   Future<void> launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
-    if (await canLaunch(appStoreLink)) {
-      await launch(appStoreLink);
+    if (await canLaunchUrlString(appStoreLink)) {
+      await launchUrlString(appStoreLink);
     } else {
       throw 'Could not launch appStoreLink';
     }
