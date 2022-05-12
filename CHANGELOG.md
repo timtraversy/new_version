@@ -1,3 +1,8 @@
+## 0.4.0 - 5/12/22
+* Add unnamed constructor to improve testing and mocking
+* Fix lint warnings
+* Bump packages to latest versions
+
 ## 0.3.0 - 1/13/21
 * #75: Add `forceAppVersion` field to make testing easier.
 * #77: Improve `canUpdate` logic so that greater local version won't prompt for an update.
