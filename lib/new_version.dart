@@ -187,26 +187,24 @@ class NewVersion {
   /// can dismiss the alert or proceed to the app store.
   ///
   /// To change the appearance and behavior of the update dialog, you can
-  /// optionally provide [dialogTitle], [titleStyle], [dialogText], [textStyle],
-  ///  [updateButtonText], [dismissButtonText], and [dismissAction] parameters.
+  /// optionally provide [dialogTitle], [dialogText], [updateButtonText],
+  /// [dismissButtonText], and [dismissAction] parameters.
   void showUpdateDialog({
     required BuildContext context,
     required VersionStatus versionStatus,
     String dialogTitle = 'Update Available',
     String? dialogText,
-    TextStyle? titleStyle,
-    TextStyle? textStyle,
     String updateButtonText = 'Update',
     bool allowDismissal = true,
     String dismissButtonText = 'Maybe Later',
     VoidCallback? dismissAction,
   }) async {
-    final dialogTitleWidget = Text(dialogTitle,
-        style: titleStyle ?? Theme.of(context).textTheme.headline6);
+    final dialogTitleWidget =
+        Text(dialogTitle, style: Theme.of(context).textTheme.headline6);
     final dialogTextWidget = Text(
         dialogText ??
             'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
-        style: textStyle ?? Theme.of(context).textTheme.bodyText1);
+        style: Theme.of(context).textTheme.bodyText1);
 
     final updateButtonTextWidget = Text(updateButtonText);
     final updateAction = () {
