@@ -55,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
       debugPrint(status.canUpdate.toString());
       newVersion.showUpdateDialog(
         context: context,
+        titleStyle: Theme.of(context).textTheme.headline6,
+        textStyle: Theme.of(context).textTheme.bodyText1,
         versionStatus: status,
         dialogTitle: 'Custom Title',
         dialogText: 'Custom Text',

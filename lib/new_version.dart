@@ -73,7 +73,7 @@ class NewVersion {
   /// Only affects iOS App Store lookup: The two-letter country code for the store you want to search.
   /// Provide a value here if your app is only available outside the US.
   /// For example: US. The default is US.
-  /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
+  /// See http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 for a list of ISO Country Codes.
   final String? iOSAppStoreCountry;
 
   /// An optional value that will force the plugin to always return [forceAppVersion]
@@ -109,6 +109,7 @@ class NewVersion {
     } else {
       debugPrint(
           'The target platform "${Platform.operatingSystem}" is not yet supported by this package.');
+      return null;
     }
   }
 
@@ -186,23 +187,26 @@ class NewVersion {
   /// can dismiss the alert or proceed to the app store.
   ///
   /// To change the appearance and behavior of the update dialog, you can
-  /// optionally provide [dialogTitle], [dialogText], [updateButtonText],
-  /// [dismissButtonText], and [dismissAction] parameters.
+  /// optionally provide [dialogTitle], [titleStyle], [dialogText], [textStyle],
+  ///  [updateButtonText], [dismissButtonText], and [dismissAction] parameters.
   void showUpdateDialog({
     required BuildContext context,
     required VersionStatus versionStatus,
     String dialogTitle = 'Update Available',
     String? dialogText,
+    TextStyle? titleStyle,
+    TextStyle? textStyle,
     String updateButtonText = 'Update',
     bool allowDismissal = true,
     String dismissButtonText = 'Maybe Later',
     VoidCallback? dismissAction,
   }) async {
-    final dialogTitleWidget = Text(dialogTitle);
+    final dialogTitleWidget = Text(dialogTitle,
+        style: titleStyle ?? Theme.of(context).textTheme.headline6);
     final dialogTextWidget = Text(
-      dialogText ??
-          'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
-    );
+        dialogText ??
+            'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
+        style: textStyle ?? Theme.of(context).textTheme.bodyText1);
 
     final updateButtonTextWidget = Text(updateButtonText);
     final updateAction = () {
@@ -232,11 +236,21 @@ class NewVersion {
         Platform.isAndroid
             ? TextButton(
                 child: dismissButtonTextWidget,
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context)
+                      .textTheme
+                      .button!
+                      .copyWith(color: Colors.red),
+                ),
                 onPressed: dismissAction,
               )
             : CupertinoDialogAction(
                 child: dismissButtonTextWidget,
                 onPressed: dismissAction,
+                textStyle: Theme.of(context)
+                    .textTheme
+                    .button!
+                    .copyWith(color: Colors.red),
               ),
       );
     }
@@ -265,8 +279,8 @@ class NewVersion {
   /// Launches the Apple App Store or Google Play Store page for the app.
   Future<void> launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
-    if (await canLaunch(appStoreLink)) {
-      await launch(appStoreLink);
+    if (await canLaunchUrl(Uri.parse(appStoreLink))) {
+      await launchUrl(Uri.parse(appStoreLink));
     } else {
       throw 'Could not launch appStoreLink';
     }
