@@ -1,3 +1,6 @@
+## 0.3.1 - 6/05/22
+* #117: Make compatible with new Play Store UI
+
 ## 0.3.0 - 1/13/21
 * #75: Add `forceAppVersion` field to make testing easier.
 * #77: Improve `canUpdate` logic so that greater local version won't prompt for an update.
