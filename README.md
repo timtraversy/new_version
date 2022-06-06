@@ -1,3 +1,6 @@
+### Archive Notice
+This plugin is relatively stable and feature-complete, but I won't be working on it or accepting pull requests going forward. If anyone is interested in taking over as maintainer, feel free to email me. I'm also happy to link to popular forks that have spun off. Thanks.
+
 # New Version Plugin 🎉
 
 A Flutter plugin that makes it possible to: 
