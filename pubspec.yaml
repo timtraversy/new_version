@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  package_info_plus: ^4.0.1
+  # package_info_plus: ^4.0.1
+  package_info_plus: ^3.1.2
   http: ^0.13.1
   html: ^0.15.0
   url_launcher: ^6.0.2
